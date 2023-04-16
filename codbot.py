@@ -14,7 +14,7 @@ async def create_window(window_name):
     cv2.moveWindow(window_name, 1024, 0)
 
 
-async def find_image_in_window(image_name, window_name, debug=False):
+async def find_image_in_window(image_name, window_name, debug=False, threshold=0.9):
     # Load the image that you want to detect
     image = cv2.imread(image_name)
 
@@ -24,9 +24,6 @@ async def find_image_in_window(image_name, window_name, debug=False):
 
     # Try to find the image within the screenshot
     result = cv2.matchTemplate(screenshot, image, cv2.TM_CCOEFF_NORMED)
-
-    # Define a threshold to determine if the image is present in the screenshot
-    threshold = 0.8
 
     # Check if the threshold has been exceeded
     locations = np.where(result >= threshold)
@@ -56,24 +53,61 @@ async def find_image_in_window(image_name, window_name, debug=False):
 
 async def reset():
     while True:
-        pyautogui.press('space')
-        coordinates = await find_image_in_window('city.PNG', window_name, True)
+        
+        coordinates = await find_image_in_window('city.PNG', window_name, False)
         if coordinates is not None:
             break
+        pyautogui.press('space')
+        time.sleep(1)
+
+async def alliance():
+    alliance = await find_image_in_window('alliance-help.PNG', window_name, False)
+
+    if alliance is not None:
+        pyautogui.click(x=alliance[0], y=alliance[1])
+        time.sleep(1)
+        await reset()
+
+async def scout():
+    scout = await find_image_in_window('scout-city.PNG', window_name, False)
+
+    if scout is not None:
+        pyautogui.click(x=scout[0], y=scout[1])
+        time.sleep(1)
+        available = await find_image_in_window('scout-available-explore.PNG', window_name, False)
+
+        if available is not None:
+            print(available)
+            await click_images_in_sequence(["scout-available-explore.PNG", "scout-explore.PNG", "scout-march.PNG"], window_name, 0.7)
+            await reset()
+            time.sleep(1)
+        else:
+            pyautogui.press('esc')
+            await reset()
+        time.sleep(1)
+
+async def click_images_in_sequence(images, window_name, confidence=0.8, timeout=30):
+    start_time = time.time()
+    for image in  images:
+        target = await find_image_in_window(image, window_name, False, confidence)
+        while target is None and time.time() - start_time < timeout:
+            await asyncio.sleep(0.5)
+            target = await find_image_in_window(image, window_name, False, confidence)
+        if target is None:
+            print(f"Failed to find {image} within {timeout} seconds.")
+            break
+        pyautogui.click(x=target[0], y=target[1])
+        await asyncio.sleep(0.5)
 
 async def main():
     await create_window(window_name)
 
     while True:
 
-        # Find the image and click on it if found
-        coordinates = await find_image_in_window('alliance-help.PNG', window_name, True)
-        if coordinates is not None:
-            pyautogui.click(x=coordinates[0], y=coordinates[1])
-            await reset()
+        await alliance()
+        await scout()
 
-        await asyncio.sleep(0.5)
-
+        time.sleep(1)
         # Exit if 'q' is pressed
         if cv2.waitKey(1) == ord('q'):
             break
