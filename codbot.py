@@ -77,13 +77,11 @@ async def scout():
         available = await find_image_in_window('scout-available-explore.PNG', window_name, False)
 
         if available is not None:
-            print(available)
             await click_images_in_sequence(["scout-available-explore.PNG", "scout-explore.PNG", "scout-march.PNG"], window_name, 0.7)
             await reset()
             time.sleep(1)
         else:
             pyautogui.press('esc')
-            await reset()
         time.sleep(1)
 
 async def click_images_in_sequence(images, window_name, confidence=0.8, timeout=30):
@@ -96,6 +94,7 @@ async def click_images_in_sequence(images, window_name, confidence=0.8, timeout=
         if target is None:
             print(f"Failed to find {image} within {timeout} seconds.")
             break
+        await asyncio.sleep(0.5)
         pyautogui.click(x=target[0], y=target[1])
         await asyncio.sleep(0.5)
 
