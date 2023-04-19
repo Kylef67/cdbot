@@ -91,30 +91,18 @@ async def click_images_in_sequence(images, window_name, confidence=0.8, timeout=
         await asyncio.sleep(1)
 
 async def click(x, y):
-
-    random_float = round(random.uniform(*global_time_delay), 2)
-    random_float = round(random_float / 0.05) * 0.05
-    time.sleep(1)
+    await asyncio.sleep(0.5)
     log(f"Clicking {x}, {y}")
     pyautogui.mouseDown(x,y)
-    await asyncio.sleep(random_float)
+    await asyncio.sleep(0.5)
     pyautogui.mouseUp(x,y)
 
 async def press(key):
-    time.sleep(1)
-    random_float = round(random.uniform(*global_time_delay), 2)
-    random_float = round(random_float / 0.05) * 0.05
-
+    await asyncio.sleep(0.5)
     pyautogui.keyDown(key)
-    await asyncio.sleep(random_float)
+    await asyncio.sleep(0.5)
     pyautogui.keyUp(key)
 
-async def delay():
-
-    random_float = round(random.uniform(*global_time_delay), 2)
-    random_float = round(random_float / 0.05) * 0.05
-
-    await asyncio.sleep(random_float)
 
 def log(msg):
     if global_debug:
@@ -123,12 +111,11 @@ def log(msg):
 # Functions
 async def reset():
     while True:
-        await delay()
         coordinates = await find_image_in_window('city.PNG', window_name, global_debug)
         if coordinates is not None:
             break
+        await press('esc')
         await press('space')
-        await delay()
 
 async def alliance():
     alliance = await find_image_in_window('alliance-help.PNG', window_name, global_debug)
@@ -224,13 +211,15 @@ async def main():
 
         #await find_image_in_window("alliance-help.PNG" , window_name, True, 0.8)
 
-        await alliance()
-        await scout()
-        await trail_elks()
-        await train_treant()
-        await train_archer()
-        await train_magic()
+        #await alliance()
+        #await scout()
+        #await trail_elks()
+        #await train_treant()
+        #await train_archer()
+        #await train_magic()
         #await supplies()
+
+        await reset()
 
         #time.sleep(1)
         # Exit if 'q' is pressed
