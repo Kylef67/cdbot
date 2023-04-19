@@ -5,6 +5,7 @@ from PIL import ImageGrab
 import pyautogui
 
 window_name = 'Call of Dragons'
+global_debug = False
 
 async def create_window(window_name):
     """
@@ -54,45 +55,45 @@ async def find_image_in_window(image_name, window_name, debug=False, threshold=0
 async def reset():
     while True:
         
-        coordinates = await find_image_in_window('city.PNG', window_name, False)
+        coordinates = await find_image_in_window('city.PNG', window_name, global_debug)
         if coordinates is not None:
             break
         pyautogui.press('space')
         time.sleep(1)
 
 async def alliance():
-    alliance = await find_image_in_window('alliance-help.PNG', window_name, False)
+    alliance = await find_image_in_window('alliance-help.PNG', window_name, global_debug)
 
     if alliance is not None:
         pyautogui.click(x=alliance[0], y=alliance[1])
         time.sleep(1)
         await reset()
-
+     
 async def scout():
-    scout = await find_image_in_window('scout-city.PNG', window_name, False)
+    scout = await find_image_in_window('scout-city.PNG', window_name, global_debug)
 
     if scout is not None:
         pyautogui.click(x=scout[0], y=scout[1])
-        time.sleep(1)
-        available = await find_image_in_window('scout-available-explore.PNG', window_name, False)
+        time.sleep(2)
+        available = await find_image_in_window('scout-available-explore.PNG', window_name, global_debug)
 
         if available is not None:
-            print(available)
             await click_images_in_sequence(["scout-available-explore.PNG", "scout-explore.PNG", "scout-march.PNG"], window_name, 0.7)
             await reset()
             time.sleep(1)
         else:
+            time.sleep(1)
             pyautogui.press('esc')
-            await reset()
-        time.sleep(1)
+            await reset() 
+        time.sleep(1)  
 
 async def click_images_in_sequence(images, window_name, confidence=0.8, timeout=30):
     start_time = time.time()
     for image in  images:
-        target = await find_image_in_window(image, window_name, False, confidence)
+        target = await find_image_in_window(image, window_name, global_debug, confidence)
         while target is None and time.time() - start_time < timeout:
             await asyncio.sleep(0.5)
-            target = await find_image_in_window(image, window_name, False, confidence)
+            target = await find_image_in_window(image, window_name, global_debug, confidence)
         if target is None:
             print(f"Failed to find {image} within {timeout} seconds.")
             break
