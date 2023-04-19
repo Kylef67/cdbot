@@ -3,16 +3,21 @@ import numpy as np
 import time
 from PIL import ImageGrab
 import pyautogui
+import random
 
 window_name = 'Call of Dragons'
-global_debug = False
+global_debug = True
+global_time_delay = (0.5, 1)
+
+# Helpers
 
 async def create_window(window_name):
     """
     Creates a window with the specified name and moves it to the right side of the screen.
     """
-    cv2.namedWindow(window_name, cv2.WINDOW_AUTOSIZE)
-    cv2.moveWindow(window_name, 1024, 0)
+    if global_debug:
+        cv2.namedWindow(window_name, cv2.WINDOW_AUTOSIZE)
+        cv2.moveWindow(window_name, 1024, 0)
 
 
 async def find_image_in_window(image_name, window_name, debug=False, threshold=0.9):
@@ -51,55 +56,93 @@ async def find_image_in_window(image_name, window_name, debug=False, threshold=0
     # Return None if the image is not found
     return None
 
+async def click_images_in_sequence(images, window_name, confidence=0.8, timeout=30):
+    start_time = time.time()
+    for image in images:
+        offset_x, offset_y = 0, 0
+        if isinstance(image, list):
+            image_path, offset_x, offset_y = image[0], image[1], image[2]
+        else:
+            image_path = image
+        target = await find_image_in_window(image_path, window_name, False, confidence)
+        while target is None and time.time() - start_time < timeout:
+            await asyncio.sleep(0.5)
+            target = await find_image_in_window(image_path, window_name, False, confidence)
+        if target is None:
+            print(f"Failed to find {image_path} within {timeout} seconds.")
+            break
+        await click(x=target[0] + offset_x, y=target[1] + offset_y)
+        await asyncio.sleep(0.5)
 
+async def click(x, y):
+
+    random_float = round(random.uniform(*global_time_delay), 2)
+    random_float = round(random_float / 0.05) * 0.05
+
+    pyautogui.mouseDown(x,y)
+    pyautogui.mouseUp(x,y)
+
+async def press(key):
+
+    random_float = round(random.uniform(*global_time_delay), 2)
+    random_float = round(random_float / 0.05) * 0.05
+
+    pyautogui.keyDown(key)
+    time.sleep(random_float)
+    pyautogui.keyUp(key)
+
+async def delay():
+
+    random_float = round(random.uniform(*global_time_delay), 2)
+    random_float = round(random_float / 0.05) * 0.05
+
+    time.sleep(random_float)
+
+# Functions
 async def reset():
     while True:
         
         coordinates = await find_image_in_window('city.PNG', window_name, global_debug)
         if coordinates is not None:
             break
-        pyautogui.press('space')
-        time.sleep(1)
+        await press('space')
+        await delay()
 
 async def alliance():
     alliance = await find_image_in_window('alliance-help.PNG', window_name, global_debug)
 
     if alliance is not None:
-        pyautogui.click(x=alliance[0], y=alliance[1])
-        time.sleep(1)
+        await click(x=alliance[0], y=alliance[1])
+        await delay()
         await reset()
      
 async def scout():
     scout = await find_image_in_window('scout-city.PNG', window_name, global_debug)
 
     if scout is not None:
-        pyautogui.click(x=scout[0], y=scout[1])
-        time.sleep(2)
+        await click(x=scout[0], y=scout[1])
+        await delay()
         available = await find_image_in_window('scout-available-explore.PNG', window_name, global_debug)
 
         if available is not None:
             await click_images_in_sequence(["scout-available-explore.PNG", "scout-explore.PNG", "scout-march.PNG"], window_name, 0.7)
             await reset()
-            time.sleep(1)
+            await delay()
         else:
-            time.sleep(1)
-            pyautogui.press('esc')
+            await delay()
+            await press('esc')
             await reset() 
-        time.sleep(1)  
+        await delay() 
 
-async def click_images_in_sequence(images, window_name, confidence=0.8, timeout=30):
-    start_time = time.time()
-    for image in  images:
-        target = await find_image_in_window(image, window_name, global_debug, confidence)
-        while target is None and time.time() - start_time < timeout:
-            await asyncio.sleep(0.5)
-            target = await find_image_in_window(image, window_name, global_debug, confidence)
-        if target is None:
-            print(f"Failed to find {image} within {timeout} seconds.")
-            break
-        await asyncio.sleep(0.5)
-        pyautogui.click(x=target[0], y=target[1])
-        await asyncio.sleep(0.5)
+async def supplies():
+    time.sleep(2)
+    found = await find_image_in_window('supplies-nearby.PNG', window_name, global_debug)
+
+    if found is not None:
+        await click(x=found[0], y=found[1])
+        time.sleep(2)
+        await click(512, 400)
+
 
 async def main():
     await create_window(window_name)
@@ -108,8 +151,9 @@ async def main():
 
         await alliance()
         await scout()
+        #await supplies()
 
-        time.sleep(1)
+        await delay()
         # Exit if 'q' is pressed
         if cv2.waitKey(1) == ord('q'):
             break
