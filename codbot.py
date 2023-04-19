@@ -6,7 +6,7 @@ import pyautogui
 import random
 
 window_name = 'Call of Dragons'
-global_debug = False
+global_debug = True
 global_time_delay = (1, 2)
 
 # Helpers
@@ -82,13 +82,14 @@ async def click_images_in_sequence(images, window_name, confidence=0.8, timeout=
              image_path = image
         target = await find_image_in_window(image_path, window_name, global_debug, confidence)
         while target is None and time.time() - start_time < timeout:
-            await asyncio.sleep(1)
+            await asyncio.sleep(0.5)
             target = await find_image_in_window(image_path, window_name, global_debug, confidence)
         if target is None:
             print(f"Failed to find {image_path} within {timeout} seconds.")
+            await reset()
             break
         await click(x=target[0] + offset_x, y=target[1] + offset_y)
-        await asyncio.sleep(1)
+        await asyncio.sleep(0.5)
 
 async def click(x, y):
     await asyncio.sleep(0.5)
@@ -99,6 +100,7 @@ async def click(x, y):
 
 async def press(key):
     await asyncio.sleep(0.5)
+    log(f"Pressing {key}")
     pyautogui.keyDown(key)
     await asyncio.sleep(0.5)
     pyautogui.keyUp(key)
@@ -124,19 +126,8 @@ async def alliance():
         await click(x=alliance[0], y=alliance[1])
      
 async def scout():
-    found = await find_image_in_window("scout-city.PNG", window_name, global_debug)
+    await click_images_in_sequence(["scout-city.PNG", "scout-available-explore.PNG", "scout-explore.PNG", "scout-march.PNG"], window_name, 0.9, 5)
 
-    if found is not None:
-        await click(x=found[0], y=found[1])
-        found = await find_image_in_window("scout-available-explore.PNG", window_name, global_debug)
-        if found is not None:
-            await click(x=found[0], y=found[1])
-            await click_images_in_sequence(["scout-explore.PNG", "scout-march.PNG"], window_name, 0.9)
-            await press("space")   
-        else:
-            await press("esc")
-    else:
-        await press("space")
 
 async def supplies():
     time.sleep(2)
@@ -148,78 +139,35 @@ async def supplies():
         await click(512, 400)
 
 async def trail_elks():
-    building = await find_image_in_window('elk-building.PNG', window_name, global_debug)
-    if building is not None:
-        await click(x=building[0], y=building[1])
-        go_train = await find_image_in_window('elk-train.PNG', window_name, global_debug)
-        if go_train is not None:
-            await click(x=go_train[0], y=go_train[1])
-            train = await find_image_in_window('train-button.PNG', window_name, global_debug)
-            if train is not None:
-                time.sleep(1)
-                await click(x=train[0], y=train[1])
-            else:
-                await press("esc")
+    await click_images_in_sequence(["elk-building.PNG", "elk-train.PNG", "train-button.PNG"], window_name, 0.9, 5)
 
 async def train_treant():
-    building = await find_image_in_window('treant-building.PNG', window_name, global_debug)
-    if building is not None:
-        await click(x=building[0], y=building[1])
-        go_train = await find_image_in_window('treant-train.PNG', window_name, global_debug)
-        if go_train is not None:
-            await click(x=go_train[0], y=go_train[1])
-            train = await find_image_in_window('train-button.PNG', window_name, global_debug)
-            if train is not None:
-                time.sleep(1)
-                await click(x=train[0], y=train[1])
-            else:
-                await press("esc")
+    await click_images_in_sequence(["treant-building.PNG", "treant-train.PNG", "train-button.PNG"], window_name, 0.9, 5)
 
 async def train_archer():
-    building = await find_image_in_window('archer-building.PNG', window_name, global_debug)
-    if building is not None:
-        await click(x=building[0], y=building[1])
-        go_train = await find_image_in_window('archer-train.PNG', window_name, global_debug)
-        if go_train is not None:
-            await click(x=go_train[0], y=go_train[1])
-            train = await find_image_in_window('train-button.PNG', window_name, global_debug)
-            if train is not None:
-                time.sleep(1)
-                await click(x=train[0], y=train[1])
-            else:
-                await press("esc")
+    await click_images_in_sequence(["archer-building.PNG", "archer-train.PNG", "train-button.PNG"], window_name, 0.9, 5)
 
 async def train_magic():
-    building = await find_image_in_window('magic-building.PNG', window_name, global_debug)
-    if building is not None:
-        await click(x=building[0], y=building[1])
-        go_train = await find_image_in_window('magic-train.PNG', window_name, global_debug)
-        if go_train is not None:
-            await click(x=go_train[0], y=go_train[1])
-            train = await find_image_in_window('train-button.PNG', window_name, global_debug)
-            if train is not None:
-                time.sleep(1)
-                await click(x=train[0], y=train[1])
-            else:
-                await press("esc")
-
+    await click_images_in_sequence(["magic-building.PNG", "magic-train.PNG", "train-button.PNG"], window_name, 0.9, 5)
+    
 async def main():
     time.sleep(2)
     await create_window(window_name)
 
+
+    await reset()
+
     while True:
 
-        #await find_image_in_window("alliance-help.PNG" , window_name, True, 0.8)
-
         #await alliance()
-        #await scout()
+        await scout()
         #await trail_elks()
         #await train_treant()
         #await train_archer()
         #await train_magic()
         #await supplies()
 
-        await reset()
+        #await reset()
 
         #time.sleep(1)
         # Exit if 'q' is pressed
