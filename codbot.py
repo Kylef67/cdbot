@@ -92,12 +92,10 @@ async def click_images_in_sequence(images, window_name, confidence=0.8, timeout=
 
 async def click(x, y):
 
-    random_float = round(random.uniform(*global_time_delay), 2)
-    random_float = round(random_float / 0.05) * 0.05
     time.sleep(1)
     log(f"Clicking {x}, {y}")
     pyautogui.mouseDown(x,y)
-    await asyncio.sleep(random_float)
+    time.sleep(0.25)
     pyautogui.mouseUp(x,y)
 
 async def press(key):
