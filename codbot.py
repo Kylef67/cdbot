@@ -159,12 +159,12 @@ async def main():
 
     while True:
 
-        #await alliance()
+        await alliance()
         await scout()
-        #await trail_elks()
-        #await train_treant()
-        #await train_archer()
-        #await train_magic()
+        await trail_elks()
+        await train_treant()
+        await train_archer()
+        await train_magic()
         #await supplies()
 
         #await reset()
