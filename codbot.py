@@ -149,6 +149,9 @@ async def train_archer():
 
 async def train_magic():
     await click_images_in_sequence(["magic-building.PNG", "magic-train.PNG", "train-button.PNG"], window_name, 0.9, 5)
+
+async def train_flying():
+    await click_images_in_sequence(["fly-building.PNG", "fly-train.PNG", "train-button.PNG"], window_name, 0.9, 5)
     
 async def main():
     time.sleep(2)
@@ -156,15 +159,16 @@ async def main():
 
 
     await reset()
-
+ 
     while True:
 
         await alliance()
-        await scout()
+        #await scout()
         await trail_elks()
         await train_treant()
         await train_archer()
         await train_magic()
+        await train_flying()
         #await supplies()
 
         #await reset()
