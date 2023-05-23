@@ -164,11 +164,11 @@ async def main():
 
         await alliance()
         #await scout()
-        await trail_elks()
-        await train_treant()
-        await train_archer()
-        await train_magic()
-        await train_flying()
+        #await trail_elks()
+        #await train_treant()
+        #await train_archer()
+        #await train_magic()
+        #await train_flying()
         #await supplies()
 
         #await reset()
