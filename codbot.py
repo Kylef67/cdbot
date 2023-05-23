@@ -6,7 +6,7 @@ import pyautogui
 import random
 
 window_name = 'Call of Dragons'
-global_debug = True
+global_debug = False
 global_time_delay = (1, 2)
 
 # Helpers
@@ -20,7 +20,7 @@ async def create_window(window_name):
         cv2.moveWindow(window_name, 1024, 0)
 
 
-async def find_image_in_window(image_name, window_name, debug=False, threshold=0.9, timeout=5):
+async def find_image_in_window(image_name, window_name, debug=False, threshold=0.8, timeout=5):
     # Load the image that you want to detect
     image = cv2.imread(image_name)
     log(f"Finding image {image_name}")
@@ -37,7 +37,7 @@ async def find_image_in_window(image_name, window_name, debug=False, threshold=0
         result = cv2.matchTemplate(screenshot, image, cv2.TM_CCOEFF_NORMED)
 
         # Check if the threshold has been exceeded
-        locations = np.where(result >= threshold)
+        locations = np.where(result >= threshold) 
         if locations[0].size > 0:
             # Loop through all the locations where the image was found and draw a green rectangle around each one
             for pt in zip(*locations[::-1]):
@@ -163,17 +163,26 @@ async def main():
     while True:
 
         await alliance()
+<<<<<<< HEAD
         #await scout()
         #await trail_elks()
         #await train_treant()
         #await train_archer()
         #await train_magic()
         #await train_flying()
+=======
+        await scout()
+        #await trail_elks()
+        #await train_treant()
+        await train_archer()
+        await train_magic()
+        await train_flying()
+>>>>>>> fe2fc012b53b0f0efb31058e7a93d7967f43b96b
         #await supplies()
 
         #await reset()
 
-        #time.sleep(1)
+        #time.sleep(1) 
         # Exit if 'q' is pressed
         if cv2.waitKey(1) == ord('q'):
             break
